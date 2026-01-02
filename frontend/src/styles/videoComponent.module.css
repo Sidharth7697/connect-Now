@@ -2,7 +2,6 @@
 .meetVideoContainer {
   display: flex;
   height: 100vh;
-  /* Dynamic Viewport Height: Fixes hidden buttons on mobile browsers */
   height: 100dvh; 
   width: 100vw;
   background: linear-gradient(135deg, #010430 0%, #050a44 100%);
@@ -48,9 +47,9 @@
   border-radius: 15px;
   border: 2px solid rgba(255,255,255,0.2);
   box-shadow: 0 10px 40px rgba(0,0,0,0.6);
-  z-index: 20; /* Lower than controls and chat */
+  z-index: 20; 
   transition: all 0.3s ease;
-  pointer-events: none; /* Prevents accidental clicks on mobile */
+  pointer-events: none; 
 }
 
 /* --- CONTROL BAR --- */
@@ -62,6 +61,8 @@
   display: flex;
   gap: 1.5rem;
   padding: 12px 30px;
+  
+  /* Glassmorphism */
   background: rgba(255, 255, 255, 0.1); 
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -69,8 +70,8 @@
   border: 1px solid rgba(255,255,255,0.1);
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
   
-  /* CRITICAL CHANGE: Higher than Chat Room so buttons remain clickable */
-  z-index: 50; 
+  /* CRITICAL: Highest Layer so you can always click it */
+  z-index: 101; 
 }
 
 .buttonContainers svg {
@@ -85,7 +86,7 @@
   color: #4facfe;
 }
 
-/* --- CHAT ROOM (Desktop) --- */
+/* --- CHAT ROOM (Desktop Default) --- */
 .chatRoom {
   position: relative;
   width: 350px;
@@ -94,7 +95,7 @@
   display: flex;
   flex-direction: column;
   box-shadow: -5px 0 20px rgba(0,0,0,0.2);
-  z-index: 40; /* Higher than video, Lower than controls */
+  z-index: 40; 
   transition: transform 0.3s ease-in-out;
 }
 
@@ -121,88 +122,77 @@
 }
 
 /* =========================================
-   MOBILE RESPONSIVENESS (Max-width: 768px)
+   MOBILE RESPONSIVENESS (Strictly Mobile)
    ========================================= */
+
 @media screen and (max-width: 768px) {
+  
+  /* 1. Layout Adjustments */
   .meetVideoContainer {
     flex-direction: column;
   }
-
-  /* 1. Stack Videos Vertically */
+  
   .conferenceView {
     padding: 1rem;
-    padding-top: 5rem; /* Space for Self View at top */
+    padding-top: 5rem;
     padding-bottom: 100px;
     align-content: flex-start;
-    gap: 1rem;
   }
 
   .conferenceView video {
-    width: 100%; /* Full width for visibility */
-    border-radius: 12px;
+    width: 100%; 
   }
 
-  /* 2. Move Self View to Top Right */
   .meetUserVideo {
-    width: 110px;
+    width: 100px;
     bottom: auto;
     top: 1rem;
     right: 1rem;
-    border: 1px solid rgba(255,255,255,0.6);
+    z-index: 25; 
   }
 
-  /* 3. Control Bar - Sticks to bottom */
   .buttonContainers {
     bottom: 1.5rem;
     width: 90%;
     justify-content: space-around;
-    padding: 12px;
+    padding: 10px;
+    /* Ensure background is darker on mobile so icons pop over white chat */
+    background: rgba(0, 0, 0, 0.6); 
   }
 
-  /* 4. CHAT ROOM - Slide-up Drawer Style */
+  /* 2. CHAT ROOM - Full Screen Overlay (WhatsApp Style) */
   .chatRoom {
     position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
+    width: 100vw;
+    height: 100dvh; /* Full viewport height */
     
-    /* Initially hidden downwards */
-    transform: translateY(100%); 
+    /* Initially Hidden: Slide it off-screen to the right */
+    transform: translateX(100%); 
     
-    /* Make background slightly transparent so we can see video behind? 
-       No, solid is better for readability on mobile. */
-    background: #fff;
-    border-radius: 20px 20px 0 0; /* Rounded top corners looks like a sheet */
+    /* Layering: Covers the video (z-index 100), but below Controls (101) */
+    z-index: 100;
     
-    /* Padding bottom to ensure input isn't hidden by Control Bar */
-    padding-bottom: 80px; 
+    border-radius: 0; /* Flat edges like an app */
   }
 
-  /* Active State (Toggled by JS) */
+  /* 3. The Active State - Slides in to cover everything */
   .chatRoom.active {
-    transform: translateY(0);
-    /* Add a top margin so it doesn't cover the very top of screen (optional aesthetic) */
-    top: 50px; 
-    height: calc(100% - 50px);
-    box-shadow: 0 -10px 40px rgba(0,0,0,0.5);
+    transform: translateX(0);
   }
 
-  /* 5. Visual "Handle" for the drawer (CSS Only Feature) 
-     This creates a small gray line at the top of the chat 
-     to indicate it is a slide-up panel. */
-  .chatRoom::before {
-    content: '';
-    display: block;
-    width: 40px;
-    height: 5px;
-    background: #ddd;
-    border-radius: 5px;
-    margin: 10px auto; /* Center it */
-  }
-
-  /* 6. Adjust Input Area for Safe Zones */
+  /* 4. Chat Input Area */
   .chattingArea {
-    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+    /* Add extra padding at bottom so the Control Bar doesn't cover the input */
+    padding-bottom: 90px; 
   }
+  
+  /* Optional: Hide Self View when chat is open to avoid clutter */
+  /* This uses the sibling selector. If .chatRoom has .active, 
+     we can't target the video easily with CSS only unless the HTML order allows it.
+     
+     Instead, we just let the chat's z-index: 100 cover the video's z-index: 25.
+     So the video is naturally hidden behind the white chat background.
+  */
 }
