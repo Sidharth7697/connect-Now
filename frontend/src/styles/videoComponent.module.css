@@ -2,7 +2,8 @@
 .meetVideoContainer {
   display: flex;
   height: 100vh;
-  height: 100dvh; /* Mobile browser fix */
+  /* Dynamic Viewport Height: Fixes hidden buttons on mobile browsers */
+  height: 100dvh; 
   width: 100vw;
   background: linear-gradient(135deg, #010430 0%, #050a44 100%);
   overflow: hidden;
@@ -10,7 +11,7 @@
   font-family: 'Segoe UI', sans-serif;
 }
 
-/* --- MAIN VIDEO AREA (Image 2 Style) --- */
+/* --- MAIN VIDEO AREA --- */
 .conferenceView {
   flex: 1;
   display: flex;
@@ -36,6 +37,22 @@
   border: 1px solid rgba(255,255,255,0.1);
 }
 
+/* --- SELF VIEW --- */
+.meetUserVideo {
+  position: absolute;
+  bottom: 2rem;
+  right: 2rem;
+  width: 280px;
+  height: auto;
+  aspect-ratio: 16/9;
+  border-radius: 15px;
+  border: 2px solid rgba(255,255,255,0.2);
+  box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+  z-index: 20; /* Lower than controls and chat */
+  transition: all 0.3s ease;
+  pointer-events: none; /* Prevents accidental clicks on mobile */
+}
+
 /* --- CONTROL BAR --- */
 .buttonContainers {
   position: absolute;
@@ -52,8 +69,8 @@
   border: 1px solid rgba(255,255,255,0.1);
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
   
-  /* CRITICAL: Sits on top of chat so you can close it */
-  z-index: 2000; 
+  /* CRITICAL CHANGE: Higher than Chat Room so buttons remain clickable */
+  z-index: 50; 
 }
 
 .buttonContainers svg {
@@ -68,7 +85,7 @@
   color: #4facfe;
 }
 
-/* --- CHAT ROOM (Default Desktop) --- */
+/* --- CHAT ROOM (Desktop) --- */
 .chatRoom {
   position: relative;
   width: 350px;
@@ -76,7 +93,8 @@
   background: white;
   display: flex;
   flex-direction: column;
-  z-index: 40; 
+  box-shadow: -5px 0 20px rgba(0,0,0,0.2);
+  z-index: 40; /* Higher than video, Lower than controls */
   transition: transform 0.3s ease-in-out;
 }
 
@@ -93,113 +111,98 @@
    overflow-y: auto;
    padding: 1rem;
    scroll-behavior: smooth;
-   background: #f0f2f5; /* WhatsApp-like background color */
-}
-
-/* --- CHAT BUBBLES (Matching Image 3) --- */
-/* You need to add these classes to your HTML messages */
-
-/* Sent Message (Green) */
-.message.sent {
-  align-self: flex-end;
-  background-color: #25D366; /* WhatsApp Green */
-  color: white;
-  padding: 10px 15px;
-  border-radius: 15px 15px 0 15px;
-  max-width: 75%;
-  margin-bottom: 10px;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-}
-
-/* Received Message (Grey) */
-.message.received {
-  align-self: flex-start;
-  background-color: #e4e6eb; /* Light Grey */
-  color: #050505;
-  padding: 10px 15px;
-  border-radius: 15px 15px 15px 0;
-  max-width: 75%;
-  margin-bottom: 10px;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
 }
 
 .chattingArea {
   position: relative;
-  padding: 1rem;
-  background: #fff;
+  padding: 1.5rem;
+  background: #f8f9fa;
   border-top: 1px solid #ddd;
 }
 
 /* =========================================
-   MOBILE LAYOUT (Max Width 1024px)
-   Matches the "Show Chat Like This Only" request
+   MOBILE RESPONSIVENESS (Max-width: 768px)
    ========================================= */
-
-@media screen and (max-width: 1024px) {
-  
+@media screen and (max-width: 768px) {
   .meetVideoContainer {
     flex-direction: column;
   }
-  
-  /* 1. Video Area (Image 2) */
+
+  /* 1. Stack Videos Vertically */
   .conferenceView {
     padding: 1rem;
-    padding-top: 5rem;
+    padding-top: 5rem; /* Space for Self View at top */
     padding-bottom: 100px;
     align-content: flex-start;
+    gap: 1rem;
   }
 
   .conferenceView video {
-    width: 100%; 
+    width: 100%; /* Full width for visibility */
+    border-radius: 12px;
   }
 
-  /* 2. Control Bar - Darker on mobile for visibility */
+  /* 2. Move Self View to Top Right */
+  .meetUserVideo {
+    width: 110px;
+    bottom: auto;
+    top: 1rem;
+    right: 1rem;
+    border: 1px solid rgba(255,255,255,0.6);
+  }
+
+  /* 3. Control Bar - Sticks to bottom */
   .buttonContainers {
     bottom: 1.5rem;
     width: 90%;
     justify-content: space-around;
-    background: rgba(0, 0, 0, 0.8); 
+    padding: 12px;
   }
 
-  /* 3. CHAT ROOM - FULL SCREEN OVERLAY (Image 3) */
+  /* 4. CHAT ROOM - Slide-up Drawer Style */
   .chatRoom {
-    position: fixed !important;
+    position: fixed;
     top: 0;
     left: 0;
+    width: 100%;
+    height: 100%;
     
-    /* Force 100% Width and Height */
-    width: 100% !important;
-    height: 100% !important;
-    height: 100dvh !important;
+    /* Initially hidden downwards */
+    transform: translateY(100%); 
     
-    /* Start hidden off-screen (Slide from right) */
-    transform: translateX(100%);
+    /* Make background slightly transparent so we can see video behind? 
+       No, solid is better for readability on mobile. */
+    background: #fff;
+    border-radius: 20px 20px 0 0; /* Rounded top corners looks like a sheet */
     
-    /* High Z-Index to cover the video completely */
-    z-index: 1000; 
-    
-    /* Clean white background */
-    background: #ffffff;
-    border-left: none;
-    box-shadow: none;
+    /* Padding bottom to ensure input isn't hidden by Control Bar */
+    padding-bottom: 80px; 
   }
 
-  /* Active State - Slides in */
+  /* Active State (Toggled by JS) */
   .chatRoom.active {
-    transform: translateX(0) !important;
+    transform: translateY(0);
+    /* Add a top margin so it doesn't cover the very top of screen (optional aesthetic) */
+    top: 50px; 
+    height: calc(100% - 50px);
+    box-shadow: 0 -10px 40px rgba(0,0,0,0.5);
   }
 
-  /* 4. Input Area Fix */
-  /* Add padding so the floating control bar doesn't block the input */
-  .chattingArea {
-    padding-bottom: 90px; 
+  /* 5. Visual "Handle" for the drawer (CSS Only Feature) 
+     This creates a small gray line at the top of the chat 
+     to indicate it is a slide-up panel. */
+  .chatRoom::before {
+    content: '';
+    display: block;
+    width: 40px;
+    height: 5px;
+    background: #ddd;
+    border-radius: 5px;
+    margin: 10px auto; /* Center it */
   }
-  
-  /* 5. Self View */
-  .meetUserVideo {
-    width: 100px;
-    top: 1rem;
-    right: 1rem;
-    z-index: 25;
+
+  /* 6. Adjust Input Area for Safe Zones */
+  .chattingArea {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
   }
 }
