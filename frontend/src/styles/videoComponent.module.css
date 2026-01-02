@@ -47,9 +47,8 @@
   border-radius: 15px;
   border: 2px solid rgba(255,255,255,0.2);
   box-shadow: 0 10px 40px rgba(0,0,0,0.6);
-  z-index: 20; 
-  transition: all 0.3s ease;
-  pointer-events: none; 
+  z-index: 20;
+  pointer-events: none;
 }
 
 /* --- CONTROL BAR --- */
@@ -61,8 +60,6 @@
   display: flex;
   gap: 1.5rem;
   padding: 12px 30px;
-  
-  /* Glassmorphism */
   background: rgba(255, 255, 255, 0.1); 
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -70,8 +67,8 @@
   border: 1px solid rgba(255,255,255,0.1);
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
   
-  /* CRITICAL: Highest Layer so you can always click it */
-  z-index: 101; 
+  /* CRITICAL: High Z-Index to sit ON TOP of the Chat in mobile */
+  z-index: 9999; 
 }
 
 .buttonContainers svg {
@@ -86,7 +83,7 @@
   color: #4facfe;
 }
 
-/* --- CHAT ROOM (Desktop Default) --- */
+/* --- CHAT ROOM (Default Desktop) --- */
 .chatRoom {
   position: relative;
   width: 350px;
@@ -94,7 +91,6 @@
   background: white;
   display: flex;
   flex-direction: column;
-  box-shadow: -5px 0 20px rgba(0,0,0,0.2);
   z-index: 40; 
   transition: transform 0.3s ease-in-out;
 }
@@ -122,16 +118,17 @@
 }
 
 /* =========================================
-   MOBILE RESPONSIVENESS (Strictly Mobile)
+   MOBILE & TABLET RESPONSIVENESS
+   Increased breakpoint to 1024px to catch Vertical Tablets/Large Phones
    ========================================= */
 
-@media screen and (max-width: 768px) {
+@media screen and (max-width: 1024px) {
   
-  /* 1. Layout Adjustments */
   .meetVideoContainer {
     flex-direction: column;
   }
   
+  /* Video Adjustments */
   .conferenceView {
     padding: 1rem;
     padding-top: 5rem;
@@ -143,56 +140,53 @@
     width: 100%; 
   }
 
-  .meetUserVideo {
-    width: 100px;
-    bottom: auto;
-    top: 1rem;
-    right: 1rem;
-    z-index: 25; 
-  }
-
+  /* Control Bar Styling for Mobile */
   .buttonContainers {
     bottom: 1.5rem;
     width: 90%;
     justify-content: space-around;
-    padding: 10px;
-    /* Ensure background is darker on mobile so icons pop over white chat */
-    background: rgba(0, 0, 0, 0.6); 
+    background: rgba(0, 0, 0, 0.75); /* Darker BG to see icons over white chat */
   }
 
-  /* 2. CHAT ROOM - Full Screen Overlay (WhatsApp Style) */
+  /* --- CHAT ROOM MOBILE FIX --- */
   .chatRoom {
-    position: fixed;
+    /* Break out of flexbox flow completely */
+    position: fixed !important; 
     top: 0;
     left: 0;
-    width: 100vw;
-    height: 100dvh; /* Full viewport height */
     
-    /* Initially Hidden: Slide it off-screen to the right */
-    transform: translateX(100%); 
+    /* Force full dimensions */
+    width: 100% !important;
+    height: 100% !important;
+    height: 100dvh !important;
     
-    /* Layering: Covers the video (z-index 100), but below Controls (101) */
-    z-index: 100;
+    /* Start Hidden (Off-screen to the right) */
+    transform: translateX(100%);
     
-    border-radius: 0; /* Flat edges like an app */
+    /* High Z-Index but lower than Control Bar (9999) */
+    z-index: 5000; 
+    
+    /* Ensure background is opaque */
+    background: #ffffff;
+    box-shadow: none;
   }
 
-  /* 3. The Active State - Slides in to cover everything */
+  /* The Active Class - Toggled by JS */
   .chatRoom.active {
-    transform: translateX(0);
+    transform: translateX(0) !important;
   }
 
-  /* 4. Chat Input Area */
+  /* Input area padding so controls don't block it */
   .chattingArea {
-    /* Add extra padding at bottom so the Control Bar doesn't cover the input */
-    padding-bottom: 90px; 
+    padding-bottom: 100px; 
   }
   
-  /* Optional: Hide Self View when chat is open to avoid clutter */
-  /* This uses the sibling selector. If .chatRoom has .active, 
-     we can't target the video easily with CSS only unless the HTML order allows it.
-     
-     Instead, we just let the chat's z-index: 100 cover the video's z-index: 25.
-     So the video is naturally hidden behind the white chat background.
-  */
+  /* Self view adjustments */
+  .meetUserVideo {
+    width: 100px;
+    top: 1rem;
+    right: 1rem;
+    bottom: auto;
+    z-index: 25;
+  }
 }
